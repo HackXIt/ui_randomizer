@@ -10,7 +10,7 @@ def run_ui_generator(app, width, height, widget_list, widget_count, output_file,
 def capture_ui(app: str, width: int, height: int, output_folder: str, iterations: int, widget_list: list, widget_count: int, delay_count: int, split_widgets: bool, layout: str) -> None:
     for i in range(iterations):
         #output_file = os.path.join(output_folder, f"ui_{i}.jpg")
-        output_file_base = f"ui_{i}"
+        output_file_base = f"ui_{'-'.join(widget_list)}_{i}"
         output_file_image = f"{output_file_base}.jpg"
         output_file_text = f"{output_file_base}.txt"
         output_file_with_char = f"/{output_file_image}"
@@ -18,6 +18,10 @@ def capture_ui(app: str, width: int, height: int, output_folder: str, iterations
         #convert_binary_to_image(output_bin, width, height, image_output)
         if split_widgets:
             for widget in widget_list:
+                output_file_base = f"ui_{widget}_{i}"
+                output_file_image = f"{output_file_base}.jpg"
+                output_file_text = f"{output_file_base}.txt"
+                output_file_with_char = f"/{output_file_image}"
                 run_ui_generator(app, width, height, [widget], widget_count, output_file_with_char, delay_count, layout)
                 shutil.move(output_file_image, os.path.join(output_folder, widget, output_file_image))
                 shutil.move(output_file_text, os.path.join(output_folder, widget, output_file_text))
@@ -74,28 +78,3 @@ if __name__ == "__main__":
             args.split_widgets,
             args.layout
         )
-""" NOTE old code
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Capture UI and convert to image.')
-    parser.add_argument('--app_path', required=True, help='Path to the random UI application')
-    parser.add_argument('--iterations', type=int, default=10, help='Number of UIs to generate')
-    parser.add_argument('--width', type=int, default=250, help='Width of the UI')
-    parser.add_argument('--height', type=int, default=250, help='Height of the UI')
-    parser.add_argument('--widget_count', required=True, type=int, help='Number of widgets to create in each iteration')
-    parser.add_argument('--widget_list', required=True, nargs='+', help='List of widgets for the UI')
-    parser.add_argument('--output_folder', required=True, help='Folder to save the output images')
-    parser.add_argument('--delay_count', type=int, default=10, help='Amount of times the timer handler shall be called with a fixed delay before capturing the UI')
-
-    args = parser.parse_args()
-
-    capture_ui(
-        os.path.abspath(args.app_path),
-        args.width,
-        args.height,
-        os.path.abspath(args.output_folder),
-        args.iterations,
-        args.widget_list,
-        args.widget_count,
-        args.delay_count
-    )
-"""
