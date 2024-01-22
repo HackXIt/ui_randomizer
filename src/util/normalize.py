@@ -3,6 +3,8 @@ from typing import List
 from typing import Generator
 import logging
 
+from util import generators
+
 def normalize_bbox(bbox: List[str], img_width: int, img_height: int) -> List[str]:
     """
     Normalize YOLO bounding box to be between 0 and 1
@@ -20,13 +22,13 @@ def normalize_bbox(bbox: List[str], img_width: int, img_height: int) -> List[str
     logging.debug("BBOX after: %s", ' '.join(bbox))
     return bbox
 
-def normalize_bbox_in_dataset_file(root: str, file: str, img_width: int, img_height: int) -> None:
+def normalize_bbox_in_label_file(file: str, img_width: int, img_height: int) -> None:
     """
     Overwrite a dataset file with normalized bounding boxes
 
     Expecting lines of the file to be in YOLO format: <class_id> <x> <y> <width> <height>
     """
-    with open(os.path.join(root, file), 'r+') as f:
+    with open(file, 'r+') as f:
         lines = f.readlines()
         for i, line in enumerate(lines):
             line = line.split(' ')
@@ -58,7 +60,7 @@ def annotation_files(dir: str, skip_directories: List[str], skip_files: List[str
                 logging.debug("Found %s", file)
                 yield os.path.join(root, file)
 
-def normalize_bbox_in_dataset_files(root: str, img_width: int, img_height: int, skip_directories: List[str] = ['rico'], skip_files: List[str] = ['test.txt', 'train.txt', 'val.txt']) -> None:
+def normalize_bbox_in_label_files_of_dir(root: str, img_width: int, img_height: int, skip_directories: List[str] = ['rico'], skip_files: List[str] = ['test.txt', 'train.txt', 'val.txt']) -> None:
     """
     Recursively normalize all bounding boxes in a dataset directory
 
@@ -66,9 +68,19 @@ def normalize_bbox_in_dataset_files(root: str, img_width: int, img_height: int, 
     """
     for file in annotation_files(root, skip_directories, skip_files):
         logging.debug(f"Normalizing {file}...")
-        normalize_bbox_in_dataset_file(root, file, img_width, img_height)
+        normalize_bbox_in_label_file(root, file, img_width, img_height)
+
+def normalize_bbox_in_label_files_of_dirs(img_width: int, img_height: int, target_directories: List[str]) -> None:
+    """
+    Recursively normalize all bounding boxes in a dataset directory
+
+    Skips by default directories named 'rico' and files named 'test.txt', 'train.txt', and 'val.txt'
+    """
+    for file in generators.annotation_files_in_dirs(target_directories):
+        logging.debug(f"Normalizing {file}...")
+        normalize_bbox_in_label_file(file, img_width, img_height)
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, format='%(levelname)s %(message)s')
     root = os.path.join(os.getcwd(), 'data')
-    normalize_bbox_in_dataset_files(root, 416, 416) # Use default skip_directories and skip_files
+    normalize_bbox_in_label_files_of_dir(root, 416, 416) # Use default skip_directories and skip_files
