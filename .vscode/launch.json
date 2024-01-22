@@ -1,0 +1,33 @@
+{
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "args": [
+                "-p",
+                "../lvgl_ui_generator/build/bin/demo",
+                "-i",
+                "10",
+                "--width",
+                "416",
+                "--height",
+                "416",
+                "-o",
+                "../tmp/",
+                "--split_widgets",
+                "--single",
+                "-t",
+                "button",
+                "checkbox",
+                "label",
+                "slider",
+                "switch",
+                "progressbar"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}
